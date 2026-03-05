@@ -1,14 +1,9 @@
 package com.bridgelabz;
 
-/**
- * QuantityMeasurementApp
- * Provides length comparison and unit conversion functionality.
- */
 public class QuantityMeasurementApp {
 
     private static final double EPSILON = 1e-6;
 
-    // ---------------- ENUM ----------------
     public enum LengthUnit {
 
         FEET(1.0),
@@ -31,7 +26,6 @@ public class QuantityMeasurementApp {
         }
     }
 
-    // ---------------- QUANTITY CLASS ----------------
     public static class Quantity {
 
         private final double value;
@@ -44,13 +38,28 @@ public class QuantityMeasurementApp {
             this.unit = unit;
         }
 
-        public Quantity convertTo(LengthUnit targetUnit) {
-            validateUnit(targetUnit);
+        public double getValue() {
+            return value;
+        }
 
-            double baseValue = unit.toBaseUnit(value);
-            double converted = targetUnit.fromBaseUnit(baseValue);
+        public LengthUnit getUnit() {
+            return unit;
+        }
 
-            return new Quantity(converted, targetUnit);
+        // ----------- ADDITION METHOD -----------
+        public Quantity add(Quantity other) {
+
+            if (other == null)
+                throw new IllegalArgumentException("Cannot add null Quantity");
+
+            double thisBase = unit.toBaseUnit(value);
+            double otherBase = other.unit.toBaseUnit(other.value);
+
+            double sumBase = thisBase + otherBase;
+
+            double convertedToOriginalUnit = unit.fromBaseUnit(sumBase);
+
+            return new Quantity(convertedToOriginalUnit, unit);
         }
 
         @Override
@@ -71,12 +80,17 @@ public class QuantityMeasurementApp {
         }
 
         @Override
+        public int hashCode() {
+            double baseValue = unit.toBaseUnit(value);
+            return Double.hashCode(baseValue);
+        }
+
+        @Override
         public String toString() {
             return value + " " + unit;
         }
     }
 
-    // ---------------- STATIC CONVERT API ----------------
     public static double convert(double value,
                                  LengthUnit source,
                                  LengthUnit target) {
@@ -89,7 +103,6 @@ public class QuantityMeasurementApp {
         return target.fromBaseUnit(baseValue);
     }
 
-    // ---------------- PRIVATE VALIDATION METHODS ----------------
     private static void validateValue(double value) {
         if (!Double.isFinite(value))
             throw new IllegalArgumentException("Invalid numeric value");
@@ -98,17 +111,5 @@ public class QuantityMeasurementApp {
     private static void validateUnit(LengthUnit unit) {
         if (unit == null)
             throw new IllegalArgumentException("Unit cannot be null");
-    }
-
-    // ---------------- OVERLOADED DEMO METHODS ----------------
-    public static double demonstrateLengthConversion(double value,
-                                                     LengthUnit from,
-                                                     LengthUnit to) {
-        return convert(value, from, to);
-    }
-
-    public static Quantity demonstrateLengthConversion(Quantity quantity,
-                                                       LengthUnit to) {
-        return quantity.convertTo(to);
     }
 }
