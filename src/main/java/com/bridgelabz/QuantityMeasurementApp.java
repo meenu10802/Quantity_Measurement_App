@@ -46,20 +46,33 @@ public class QuantityMeasurementApp {
             return unit;
         }
 
-        // ----------- ADDITION METHOD -----------
+        // UC6 (implicit target = first operand unit)
         public Quantity add(Quantity other) {
+            return add(other, this.unit);
+        }
+
+        // UC7 (explicit target unit)
+        public Quantity add(Quantity other, LengthUnit targetUnit) {
 
             if (other == null)
-                throw new IllegalArgumentException("Cannot add null Quantity");
+                throw new IllegalArgumentException("Other quantity cannot be null");
 
-            double thisBase = unit.toBaseUnit(value);
-            double otherBase = other.unit.toBaseUnit(other.value);
+            validateUnit(targetUnit);
 
-            double sumBase = thisBase + otherBase;
+            double sumInBase = sumInBaseUnit(this, other);
 
-            double convertedToOriginalUnit = unit.fromBaseUnit(sumBase);
+            double resultValue = targetUnit.fromBaseUnit(sumInBase);
 
-            return new Quantity(convertedToOriginalUnit, unit);
+            return new Quantity(resultValue, targetUnit);
+        }
+
+        // ---------- PRIVATE UTILITY (DRY) ----------
+        private static double sumInBaseUnit(Quantity q1, Quantity q2) {
+
+            double base1 = q1.unit.toBaseUnit(q1.value);
+            double base2 = q2.unit.toBaseUnit(q2.value);
+
+            return base1 + base2;
         }
 
         @Override
@@ -73,21 +86,20 @@ public class QuantityMeasurementApp {
 
             Quantity other = (Quantity) obj;
 
-            double thisBase = unit.toBaseUnit(value);
-            double otherBase = other.unit.toBaseUnit(other.value);
+            double base1 = unit.toBaseUnit(value);
+            double base2 = other.unit.toBaseUnit(other.value);
 
-            return Math.abs(thisBase - otherBase) < EPSILON;
+            return Math.abs(base1 - base2) < EPSILON;
         }
 
         @Override
         public int hashCode() {
-            double baseValue = unit.toBaseUnit(value);
-            return Double.hashCode(baseValue);
+            return Double.hashCode(unit.toBaseUnit(value));
         }
 
         @Override
         public String toString() {
-            return value + " " + unit;
+            return String.format("%.3f %s", value, unit);
         }
     }
 
@@ -99,8 +111,8 @@ public class QuantityMeasurementApp {
         validateUnit(source);
         validateUnit(target);
 
-        double baseValue = source.toBaseUnit(value);
-        return target.fromBaseUnit(baseValue);
+        double base = source.toBaseUnit(value);
+        return target.fromBaseUnit(base);
     }
 
     private static void validateValue(double value) {
