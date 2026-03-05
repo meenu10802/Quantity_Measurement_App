@@ -4,45 +4,40 @@ public class QuantityMeasurementApp {
 
     public static void main(String[] args) {
 
-        Quantity<LengthUnit> feet =
-                new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> length1 =
+                new Quantity<>(10.0, LengthUnit.FEET);
 
-        Quantity<LengthUnit> inches =
-                new Quantity<>(12.0, LengthUnit.INCH);
+        Quantity<LengthUnit> length2 =
+                new Quantity<>(6.0, LengthUnit.INCH);
 
-        System.out.println("Length equality: " + feet.equals(inches));
+        System.out.println("Subtraction: " +
+                length1.subtract(length2));
 
-        Quantity<LengthUnit> lengthResult =
-                feet.add(inches, LengthUnit.FEET);
+        System.out.println("Division: " +
+                length1.divide(new Quantity<>(2.0, LengthUnit.FEET)));
 
-        System.out.println("Length addition: " + lengthResult);
+        Quantity<WeightUnit> weight1 =
+                new Quantity<>(10.0, WeightUnit.KILOGRAM);
 
+        Quantity<WeightUnit> weight2 =
+                new Quantity<>(5000.0, WeightUnit.GRAM);
 
-        Quantity<WeightUnit> kg =
-                new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        System.out.println("Weight subtraction: " +
+                weight1.subtract(weight2));
 
-        Quantity<WeightUnit> gram =
-                new Quantity<>(1000.0, WeightUnit.GRAM);
+        System.out.println("Weight division: " +
+                weight1.divide(new Quantity<>(5.0, WeightUnit.KILOGRAM)));
 
-        System.out.println("Weight equality: " + kg.equals(gram));
+        Quantity<VolumeUnit> volume1 =
+                new Quantity<>(5.0, VolumeUnit.LITRE);
 
-        Quantity<WeightUnit> weightResult =
-                kg.add(gram, WeightUnit.KILOGRAM);
+        Quantity<VolumeUnit> volume2 =
+                new Quantity<>(500.0, VolumeUnit.MILLILITRE);
 
-        System.out.println("Weight addition: " + weightResult);
+        System.out.println("Volume subtraction: " +
+                volume1.subtract(volume2));
 
-
-        Quantity<VolumeUnit> litre =
-                new Quantity<>(1.0, VolumeUnit.LITRE);
-
-        Quantity<VolumeUnit> millilitre =
-                new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
-
-        System.out.println("Volume equality: " + litre.equals(millilitre));
-
-        Quantity<VolumeUnit> volumeResult =
-                litre.add(millilitre, VolumeUnit.LITRE);
-
-        System.out.println("Volume addition: " + volumeResult);
+        System.out.println("Volume division: " +
+                volume1.divide(new Quantity<>(1.0, VolumeUnit.LITRE)));
     }
 }
