@@ -4,30 +4,33 @@ public class QuantityMeasurementApp {
 
     // ---------------- ENUM ----------------
     public enum LengthUnit {
+
         FEET(1.0),
-        INCH(1.0 / 12.0);
+        INCH(1.0 / 12.0),
+        YARDS(3.0),                 // 1 yard = 3 feet
+        CENTIMETER(0.393701 / 12.0); // 1 cm = 0.393701 inch → convert to feet
 
-        private final double conversionFactor;
+        private final double conversionFactorToFeet;
 
-        LengthUnit(double conversionFactor) {
-            this.conversionFactor = conversionFactor;
+        LengthUnit(double conversionFactorToFeet) {
+            this.conversionFactorToFeet = conversionFactorToFeet;
         }
 
         public double toBaseUnit(double value) {
-            return value * conversionFactor;
+            return value * conversionFactorToFeet;
         }
     }
 
-    // ---------------- GENERIC QUANTITY CLASS ----------------
+    // ---------------- GENERIC QUANTITY ----------------
     public static class Quantity {
 
         private final double value;
         private final LengthUnit unit;
 
         public Quantity(double value, LengthUnit unit) {
-            if (unit == null) {
+            if (unit == null)
                 throw new IllegalArgumentException("Unit cannot be null");
-            }
+
             this.value = value;
             this.unit = unit;
         }
@@ -46,10 +49,10 @@ public class QuantityMeasurementApp {
 
             Quantity other = (Quantity) obj;
 
-            double thisInBase = this.unit.toBaseUnit(this.value);
-            double otherInBase = other.unit.toBaseUnit(other.value);
+            double thisInFeet = this.unit.toBaseUnit(this.value);
+            double otherInFeet = other.unit.toBaseUnit(other.value);
 
-            return Double.compare(thisInBase, otherInBase) == 0;
+            return Double.compare(thisInFeet, otherInFeet) == 0;
         }
 
         @Override
