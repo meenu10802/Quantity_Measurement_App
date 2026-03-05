@@ -4,28 +4,6 @@ public class QuantityMeasurementApp {
 
     private static final double EPSILON = 1e-6;
 
-    public enum LengthUnit {
-
-        FEET(1.0),
-        INCH(1.0 / 12.0),
-        YARDS(3.0),
-        CENTIMETER(0.393701 / 12.0);
-
-        private final double conversionFactorToFeet;
-
-        LengthUnit(double conversionFactorToFeet) {
-            this.conversionFactorToFeet = conversionFactorToFeet;
-        }
-
-        public double toBaseUnit(double value) {
-            return value * conversionFactorToFeet;
-        }
-
-        public double fromBaseUnit(double baseValue) {
-            return baseValue / conversionFactorToFeet;
-        }
-    }
-
     public static class Quantity {
 
         private final double value;
@@ -61,18 +39,27 @@ public class QuantityMeasurementApp {
 
             double sumInBase = sumInBaseUnit(this, other);
 
-            double resultValue = targetUnit.fromBaseUnit(sumInBase);
+            double resultValue = targetUnit.convertFromBaseUnit(sumInBase);
 
             return new Quantity(resultValue, targetUnit);
         }
 
-        // ---------- PRIVATE UTILITY (DRY) ----------
         private static double sumInBaseUnit(Quantity q1, Quantity q2) {
 
-            double base1 = q1.unit.toBaseUnit(q1.value);
-            double base2 = q2.unit.toBaseUnit(q2.value);
+            double base1 = q1.unit.convertToBaseUnit(q1.value);
+            double base2 = q2.unit.convertToBaseUnit(q2.value);
 
             return base1 + base2;
+        }
+
+        public Quantity convertTo(LengthUnit targetUnit) {
+
+            validateUnit(targetUnit);
+
+            double baseValue = unit.convertToBaseUnit(value);
+            double converted = targetUnit.convertFromBaseUnit(baseValue);
+
+            return new Quantity(converted, targetUnit);
         }
 
         @Override
@@ -86,15 +73,15 @@ public class QuantityMeasurementApp {
 
             Quantity other = (Quantity) obj;
 
-            double base1 = unit.toBaseUnit(value);
-            double base2 = other.unit.toBaseUnit(other.value);
+            double base1 = unit.convertToBaseUnit(value);
+            double base2 = other.unit.convertToBaseUnit(other.value);
 
             return Math.abs(base1 - base2) < EPSILON;
         }
 
         @Override
         public int hashCode() {
-            return Double.hashCode(unit.toBaseUnit(value));
+            return Double.hashCode(unit.convertToBaseUnit(value));
         }
 
         @Override
@@ -111,8 +98,8 @@ public class QuantityMeasurementApp {
         validateUnit(source);
         validateUnit(target);
 
-        double base = source.toBaseUnit(value);
-        return target.fromBaseUnit(base);
+        double base = source.convertToBaseUnit(value);
+        return target.convertFromBaseUnit(base);
     }
 
     private static void validateValue(double value) {
