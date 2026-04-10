@@ -34,12 +34,17 @@ public class Quantity<U extends IMeasurable> {
     }
 
     public Quantity<U> add(Quantity<U> other) {
+
+        unit.validateOperationSupport("ADD");
+
         return add(other, this.unit);
     }
 
     public Quantity<U> add(Quantity<U> other, U targetUnit) {
 
-        validateArithmeticOperands(other, targetUnit, true);
+        unit.validateOperationSupport("ADD");
+
+        validateOperands(other);
 
         double resultBase =
                 performBaseArithmetic(other, ArithmeticOperation.ADD);
@@ -51,12 +56,17 @@ public class Quantity<U extends IMeasurable> {
     }
 
     public Quantity<U> subtract(Quantity<U> other) {
+
+        unit.validateOperationSupport("SUBTRACT");
+
         return subtract(other, this.unit);
     }
 
     public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
 
-        validateArithmeticOperands(other, targetUnit, true);
+        unit.validateOperationSupport("SUBTRACT");
+
+        validateOperands(other);
 
         double resultBase =
                 performBaseArithmetic(other, ArithmeticOperation.SUBTRACT);
@@ -69,18 +79,19 @@ public class Quantity<U extends IMeasurable> {
 
     public double divide(Quantity<U> other) {
 
-        validateArithmeticOperands(other, null, false);
+        unit.validateOperationSupport("DIVIDE");
 
-        double result =
-                performBaseArithmetic(other, ArithmeticOperation.DIVIDE);
+        validateOperands(other);
 
-        return result;
+        return performBaseArithmetic(other, ArithmeticOperation.DIVIDE);
     }
 
     private enum ArithmeticOperation {
 
         ADD((a, b) -> a + b),
+
         SUBTRACT((a, b) -> a - b),
+
         DIVIDE((a, b) -> {
 
             if (b == 0)
@@ -91,8 +102,8 @@ public class Quantity<U extends IMeasurable> {
 
         private final DoubleBinaryOperator operation;
 
-        ArithmeticOperation(DoubleBinaryOperator operation) {
-            this.operation = operation;
+        ArithmeticOperation(DoubleBinaryOperator op) {
+            this.operation = op;
         }
 
         public double compute(double a, double b) {
@@ -100,23 +111,13 @@ public class Quantity<U extends IMeasurable> {
         }
     }
 
-    private void validateArithmeticOperands(
-            Quantity<U> other,
-            U targetUnit,
-            boolean targetUnitRequired
-    ) {
+    private void validateOperands(Quantity<U> other) {
 
         if (other == null)
             throw new IllegalArgumentException("Other quantity cannot be null");
 
         if (unit.getClass() != other.unit.getClass())
             throw new IllegalArgumentException("Different measurement categories");
-
-        if (!Double.isFinite(value) || !Double.isFinite(other.value))
-            throw new IllegalArgumentException("Invalid numeric values");
-
-        if (targetUnitRequired && targetUnit == null)
-            throw new IllegalArgumentException("Target unit cannot be null");
     }
 
     private double performBaseArithmetic(
@@ -124,11 +125,8 @@ public class Quantity<U extends IMeasurable> {
             ArithmeticOperation operation
     ) {
 
-        double base1 =
-                unit.convertToBaseUnit(value);
-
-        double base2 =
-                other.unit.convertToBaseUnit(other.value);
+        double base1 = unit.convertToBaseUnit(value);
+        double base2 = other.unit.convertToBaseUnit(other.value);
 
         return operation.compute(base1, base2);
     }
