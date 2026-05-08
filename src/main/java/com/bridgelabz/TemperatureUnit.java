@@ -31,7 +31,10 @@ public enum TemperatureUnit implements IMeasurable {
         this.toCelsius = toCelsius;
         this.fromCelsius = fromCelsius;
     }
-
+    @Override
+    public double getConversionFactor() {
+        return 1.0;  // not used, formula-based conversion
+    }
     @Override
     public double convertToBaseUnit(double value) {
         return toCelsius.apply(value);
