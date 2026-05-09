@@ -116,4 +116,7 @@ public class QuantityMeasurementAppTest {
 
         assertEquals(2.0, kg.divide(kg2));
     }
+    @Test
+    void contextLoads() {
+    }
 }
