@@ -1,75 +1,78 @@
 package com.bridgelabz.controller;
 
-import com.bridgelabz.model.QuantityDTO;
+import com.bridgelabz.dto.QuantityInputDTO;
 import com.bridgelabz.model.QuantityMeasurementEntity;
 import com.bridgelabz.service.IQuantityMeasurementService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/quantities")
+@Tag(name = "Quantity Measurements", description = "REST API for quantity measurement operations")
 public class QuantityMeasurementController {
 
     private final IQuantityMeasurementService service;
 
     public QuantityMeasurementController(IQuantityMeasurementService service) {
-        if (service == null) {
-            throw new IllegalArgumentException("Service cannot be null");
-        }
         this.service = service;
     }
 
-    public QuantityMeasurementEntity performCompare(QuantityDTO first, QuantityDTO second) {
-        return service.compare(first, second);
+    @PostMapping("/compare")
+    @Operation(summary = "Compare two quantities")
+    public QuantityMeasurementEntity compare(@RequestBody QuantityInputDTO input) {
+        return service.compare(input.getFirstQuantity(), input.getSecondQuantity());
     }
 
-    public QuantityMeasurementEntity performConvert(QuantityDTO quantity, String targetUnit) {
-        return service.convert(quantity, targetUnit);
+    @PostMapping("/convert")
+    @Operation(summary = "Convert one quantity to target unit")
+    public QuantityMeasurementEntity convert(@RequestBody QuantityInputDTO input) {
+        return service.convert(input.getFirstQuantity(), input.getTargetUnit());
     }
 
-    public QuantityMeasurementEntity performAdd(QuantityDTO first, QuantityDTO second) {
-        return service.add(first, second);
+    @PostMapping("/add")
+    @Operation(summary = "Add two quantities")
+    public QuantityMeasurementEntity add(@RequestBody QuantityInputDTO input) {
+        return service.add(input.getFirstQuantity(), input.getSecondQuantity());
     }
 
-    public QuantityMeasurementEntity performSubtract(QuantityDTO first, QuantityDTO second) {
-        return service.subtract(first, second);
+    @PostMapping("/subtract")
+    @Operation(summary = "Subtract two quantities")
+    public QuantityMeasurementEntity subtract(@RequestBody QuantityInputDTO input) {
+        return service.subtract(input.getFirstQuantity(), input.getSecondQuantity());
     }
 
-    public QuantityMeasurementEntity performDivide(QuantityDTO first, QuantityDTO second) {
-        return service.divide(first, second);
+    @PostMapping("/divide")
+    @Operation(summary = "Divide two quantities")
+    public QuantityMeasurementEntity divide(@RequestBody QuantityInputDTO input) {
+        return service.divide(input.getFirstQuantity(), input.getSecondQuantity());
     }
 
-    public void demonstrateOperations() {
-        QuantityDTO celsius =
-                new QuantityDTO(0.0, "CELSIUS", "TEMPERATURE");
-
-        QuantityDTO fahrenheit =
-                new QuantityDTO(32.0, "FAHRENHEIT", "TEMPERATURE");
-
-        displayResult(performCompare(celsius, fahrenheit));
-
-        QuantityDTO hundredCelsius =
-                new QuantityDTO(100.0, "CELSIUS", "TEMPERATURE");
-
-        displayResult(performConvert(hundredCelsius, "FAHRENHEIT"));
-
-        QuantityDTO feet =
-                new QuantityDTO(10.0, "FEET", "LENGTH");
-
-        QuantityDTO inch =
-                new QuantityDTO(12.0, "INCH", "LENGTH");
-
-        displayResult(performAdd(feet, inch));
-
-        displayResult(performSubtract(feet, inch));
-
-        displayResult(performDivide(feet, inch));
-
-        displayResult(performAdd(hundredCelsius, celsius));
+    @GetMapping("/history/operation/{operationType}")
+    @Operation(summary = "Get history by operation type")
+    public List<QuantityMeasurementEntity> getHistoryByOperation(
+            @PathVariable String operationType) {
+        return service.getHistoryByOperation(operationType);
     }
 
-    public void displayResult(QuantityMeasurementEntity entity) {
-        if (entity.hasError()) {
-            System.out.println("Error in " + entity.getOperationType() + ": "
-                    + entity.getErrorMessage());
-        } else {
-            System.out.println(entity);
-        }
+    @GetMapping("/history/type/{measurementType}")
+    @Operation(summary = "Get history by measurement type")
+    public List<QuantityMeasurementEntity> getHistoryByMeasurementType(
+            @PathVariable String measurementType) {
+        return service.getHistoryByMeasurementType(measurementType);
+    }
+
+    @GetMapping("/history/errors")
+    @Operation(summary = "Get all failed/error operations")
+    public List<QuantityMeasurementEntity> getErrorHistory() {
+        return service.getErrorHistory();
+    }
+
+    @GetMapping("/count/{operationType}")
+    @Operation(summary = "Get operation count")
+    public long getOperationCount(@PathVariable String operationType) {
+        return service.getOperationCount(operationType);
     }
 }

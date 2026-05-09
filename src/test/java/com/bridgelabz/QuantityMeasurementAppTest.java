@@ -2,6 +2,7 @@ package com.bridgelabz;
 
 import com.bridgelabz.unit.LengthUnit;
 import com.bridgelabz.unit.VolumeUnit;
+import com.bridgelabz.unit.WeightUnit;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

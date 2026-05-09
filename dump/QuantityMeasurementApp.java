@@ -2,7 +2,6 @@ package com.bridgelabz.dump;
 
 import com.bridgelabz.controller.QuantityMeasurementController;
 import com.bridgelabz.repository.IQuantityMeasurementRepository;
-import com.bridgelabz.repository.QuantityMeasurementDatabaseRepository;
 import com.bridgelabz.service.IQuantityMeasurementService;
 import com.bridgelabz.service.QuantityMeasurementServiceImpl;
 

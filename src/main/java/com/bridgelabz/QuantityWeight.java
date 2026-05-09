@@ -1,5 +1,7 @@
 package com.bridgelabz;
 
+import com.bridgelabz.unit.WeightUnit;
+
 public class QuantityWeight {
 
     private static final double EPSILON = 1e-6;
