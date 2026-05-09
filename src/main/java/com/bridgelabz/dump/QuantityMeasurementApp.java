@@ -1,4 +1,4 @@
-package com.bridgelabz;
+package com.bridgelabz.dump;
 
 import com.bridgelabz.controller.QuantityMeasurementController;
 import com.bridgelabz.repository.IQuantityMeasurementRepository;
