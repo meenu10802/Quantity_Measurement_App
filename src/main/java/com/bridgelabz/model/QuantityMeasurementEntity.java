@@ -1,28 +1,52 @@
 package com.bridgelabz.model;
 
-import java.io.Serializable;
+import com.bridgelabz.dto.QuantityDTO;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class QuantityMeasurementEntity implements Serializable {
+import java.time.LocalDateTime;
 
-    private static final long serialVersionUID = 1L;
+@Entity
+@Table(name = "quantity_measurements")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class QuantityMeasurementEntity {
 
-    private QuantityDTO firstQuantity;
-    private QuantityDTO secondQuantity;
-    private QuantityDTO resultQuantity;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String operationType;
-    private boolean result;
-    private boolean error;
+
+    private Double firstValue;
+    private String firstUnit;
+    private String firstMeasurementType;
+
+    private Double secondValue;
+    private String secondUnit;
+    private String secondMeasurementType;
+
+    private Double resultValue;
+    private String resultUnit;
+    private String resultMeasurementType;
+
+    private Boolean comparisonResult;
+
+    private Boolean error;
+
     private String errorMessage;
 
-    public QuantityMeasurementEntity() {
-    }
+    private LocalDateTime createdAt;
 
     public QuantityMeasurementEntity(String operationType,
                                      QuantityDTO firstQuantity,
                                      QuantityDTO resultQuantity) {
         this.operationType = operationType;
-        this.firstQuantity = firstQuantity;
-        this.resultQuantity = resultQuantity;
+        setFirstQuantity(firstQuantity);
+        setResultQuantity(resultQuantity);
         this.error = false;
     }
 
@@ -31,20 +55,20 @@ public class QuantityMeasurementEntity implements Serializable {
                                      QuantityDTO secondQuantity,
                                      QuantityDTO resultQuantity) {
         this.operationType = operationType;
-        this.firstQuantity = firstQuantity;
-        this.secondQuantity = secondQuantity;
-        this.resultQuantity = resultQuantity;
+        setFirstQuantity(firstQuantity);
+        setSecondQuantity(secondQuantity);
+        setResultQuantity(resultQuantity);
         this.error = false;
     }
 
     public QuantityMeasurementEntity(String operationType,
                                      QuantityDTO firstQuantity,
                                      QuantityDTO secondQuantity,
-                                     boolean result) {
+                                     boolean comparisonResult) {
         this.operationType = operationType;
-        this.firstQuantity = firstQuantity;
-        this.secondQuantity = secondQuantity;
-        this.result = result;
+        setFirstQuantity(firstQuantity);
+        setSecondQuantity(secondQuantity);
+        this.comparisonResult = comparisonResult;
         this.error = false;
     }
 
@@ -55,56 +79,90 @@ public class QuantityMeasurementEntity implements Serializable {
         this.error = true;
     }
 
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+
+        if (this.error == null) {
+            this.error = false;
+        }
+    }
+
     public QuantityDTO getFirstQuantity() {
-        return firstQuantity;
+        if (firstUnit == null && firstMeasurementType == null) {
+            return null;
+        }
+        return new QuantityDTO(firstValue, firstUnit, firstMeasurementType);
     }
 
     public QuantityDTO getSecondQuantity() {
-        return secondQuantity;
+        if (secondUnit == null && secondMeasurementType == null) {
+            return null;
+        }
+        return new QuantityDTO(secondValue, secondUnit, secondMeasurementType);
     }
 
     public QuantityDTO getResultQuantity() {
-        return resultQuantity;
-    }
-
-    public String getOperationType() {
-        return operationType;
+        if (resultUnit == null && resultMeasurementType == null) {
+            return null;
+        }
+        return new QuantityDTO(resultValue, resultUnit, resultMeasurementType);
     }
 
     public boolean getResult() {
-        return result;
+        return Boolean.TRUE.equals(comparisonResult);
     }
 
     public boolean hasError() {
-        return error;
+        return Boolean.TRUE.equals(error);
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    private void setFirstQuantity(QuantityDTO quantity) {
+        if (quantity != null) {
+            this.firstValue = quantity.getValue();
+            this.firstUnit = quantity.getUnit();
+            this.firstMeasurementType = quantity.getMeasurementType();
+        }
+    }
+
+    private void setSecondQuantity(QuantityDTO quantity) {
+        if (quantity != null) {
+            this.secondValue = quantity.getValue();
+            this.secondUnit = quantity.getUnit();
+            this.secondMeasurementType = quantity.getMeasurementType();
+        }
+    }
+
+    private void setResultQuantity(QuantityDTO quantity) {
+        if (quantity != null) {
+            this.resultValue = quantity.getValue();
+            this.resultUnit = quantity.getUnit();
+            this.resultMeasurementType = quantity.getMeasurementType();
+        }
     }
 
     @Override
     public String toString() {
-        if (error) {
+        if (hasError()) {
             return "Operation: " + operationType + ", Error: " + errorMessage;
         }
 
         if ("COMPARE".equals(operationType)) {
             return "Operation: " + operationType +
-                    ", First: " + firstQuantity +
-                    ", Second: " + secondQuantity +
-                    ", Result: " + result;
+                    ", First: " + getFirstQuantity() +
+                    ", Second: " + getSecondQuantity() +
+                    ", Result: " + comparisonResult;
         }
 
         if ("CONVERT".equals(operationType)) {
             return "Operation: " + operationType +
-                    ", Input: " + firstQuantity +
-                    ", Result: " + resultQuantity;
+                    ", Input: " + getFirstQuantity() +
+                    ", Result: " + getResultQuantity();
         }
 
         return "Operation: " + operationType +
-                ", First: " + firstQuantity +
-                ", Second: " + secondQuantity +
-                ", Result Quantity: " + resultQuantity;
+                ", First: " + getFirstQuantity() +
+                ", Second: " + getSecondQuantity() +
+                ", Result Quantity: " + getResultQuantity();
     }
 }

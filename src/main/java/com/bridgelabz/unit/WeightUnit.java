@@ -1,6 +1,4 @@
-package com.bridgelabz;
-
-import com.bridgelabz.unit.IMeasurable;
+package com.bridgelabz.unit;
 
 public enum WeightUnit implements IMeasurable {
 

@@ -1,23 +1,25 @@
 package com.bridgelabz.service;
 
-import com.bridgelabz.*;
+import com.bridgelabz.Quantity;
 import com.bridgelabz.exception.QuantityMeasurementException;
-import com.bridgelabz.model.QuantityDTO;
+import com.bridgelabz.dto.QuantityDTO;
 import com.bridgelabz.model.QuantityMeasurementEntity;
-import com.bridgelabz.repository.IQuantityMeasurementRepository;
+import com.bridgelabz.repository.QuantityMeasurementRepository;
 import com.bridgelabz.unit.IMeasurable;
 import com.bridgelabz.unit.LengthUnit;
 import com.bridgelabz.unit.TemperatureUnit;
 import com.bridgelabz.unit.VolumeUnit;
+import com.bridgelabz.unit.WeightUnit;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService {
 
-    private final IQuantityMeasurementRepository repository;
+    private final QuantityMeasurementRepository repository;
 
-    public QuantityMeasurementServiceImpl(IQuantityMeasurementRepository repository) {
-        if (repository == null) {
-            throw new QuantityMeasurementException("Repository cannot be null");
-        }
+    public QuantityMeasurementServiceImpl(QuantityMeasurementRepository repository) {
         this.repository = repository;
     }
 
@@ -32,8 +34,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
             QuantityMeasurementEntity entity =
                     new QuantityMeasurementEntity("COMPARE", first, second, result);
 
-            repository.save(entity);
-            return entity;
+            return repository.save(entity);
 
         } catch (Exception e) {
             return saveError("COMPARE", e);
@@ -57,8 +58,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
             QuantityMeasurementEntity entity =
                     new QuantityMeasurementEntity("CONVERT", quantity, resultDTO);
 
-            repository.save(entity);
-            return entity;
+            return repository.save(entity);
 
         } catch (Exception e) {
             return saveError("CONVERT", e);
@@ -82,8 +82,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
             QuantityMeasurementEntity entity =
                     new QuantityMeasurementEntity("ADD", first, second, resultDTO);
 
-            repository.save(entity);
-            return entity;
+            return repository.save(entity);
 
         } catch (Exception e) {
             return saveError("ADD", e);
@@ -107,8 +106,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
             QuantityMeasurementEntity entity =
                     new QuantityMeasurementEntity("SUBTRACT", first, second, resultDTO);
 
-            repository.save(entity);
-            return entity;
+            return repository.save(entity);
 
         } catch (Exception e) {
             return saveError("SUBTRACT", e);
@@ -132,12 +130,31 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
             QuantityMeasurementEntity entity =
                     new QuantityMeasurementEntity("DIVIDE", first, second, resultDTO);
 
-            repository.save(entity);
-            return entity;
+            return repository.save(entity);
 
         } catch (Exception e) {
             return saveError("DIVIDE", e);
         }
+    }
+
+    @Override
+    public List<QuantityMeasurementEntity> getHistoryByOperation(String operationType) {
+        return repository.findByOperationType(operationType.toUpperCase());
+    }
+
+    @Override
+    public List<QuantityMeasurementEntity> getHistoryByMeasurementType(String measurementType) {
+        return repository.findByFirstMeasurementType(measurementType.toUpperCase());
+    }
+
+    @Override
+    public List<QuantityMeasurementEntity> getErrorHistory() {
+        return repository.findByErrorTrue();
+    }
+
+    @Override
+    public long getOperationCount(String operationType) {
+        return repository.countByOperationTypeAndErrorFalse(operationType.toUpperCase());
     }
 
     private Quantity toQuantity(QuantityDTO dto) {
@@ -159,10 +176,10 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         String unit = unitName.trim().toUpperCase();
 
         return switch (type) {
-            case "LENGTH" -> LengthUnit.valueOf(unit);
-            case "WEIGHT" -> WeightUnit.valueOf(unit);
-            case "VOLUME" -> VolumeUnit.valueOf(unit);
-            case "TEMPERATURE" -> TemperatureUnit.valueOf(unit);
+            case "LENGTH", "LENGTHUNIT" -> LengthUnit.valueOf(unit);
+            case "WEIGHT", "WEIGHTUNIT" -> WeightUnit.valueOf(unit);
+            case "VOLUME", "VOLUMEUNIT" -> VolumeUnit.valueOf(unit);
+            case "TEMPERATURE", "TEMPERATUREUNIT" -> TemperatureUnit.valueOf(unit);
             default -> throw new QuantityMeasurementException("Invalid measurement type: " + measurementType);
         };
     }
@@ -171,7 +188,6 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         QuantityMeasurementEntity entity =
                 new QuantityMeasurementEntity(operationType, e.getMessage());
 
-        repository.save(entity);
-        return entity;
+        return repository.save(entity);
     }
 }
