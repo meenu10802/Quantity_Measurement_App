@@ -1,9 +1,6 @@
-package com.bridgelabz;
+package com.bridgelabz.unit;
 
-@FunctionalInterface
-interface SupportsArithmetic {
-    boolean isSupported();
-}
+
 
 public interface IMeasurable {
     double getConversionFactor();

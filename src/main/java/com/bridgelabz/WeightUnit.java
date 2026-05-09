@@ -1,5 +1,7 @@
 package com.bridgelabz;
 
+import com.bridgelabz.unit.IMeasurable;
+
 public enum WeightUnit implements IMeasurable {
 
     KILOGRAM(1.0),

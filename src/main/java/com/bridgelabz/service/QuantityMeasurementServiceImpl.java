@@ -5,6 +5,10 @@ import com.bridgelabz.exception.QuantityMeasurementException;
 import com.bridgelabz.model.QuantityDTO;
 import com.bridgelabz.model.QuantityMeasurementEntity;
 import com.bridgelabz.repository.IQuantityMeasurementRepository;
+import com.bridgelabz.unit.IMeasurable;
+import com.bridgelabz.unit.LengthUnit;
+import com.bridgelabz.unit.TemperatureUnit;
+import com.bridgelabz.unit.VolumeUnit;
 
 public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService {
 
